@@ -1,7 +1,11 @@
-import { configDotenv } from 'dotenv'
-import express from 'express'
-configDotenv()
-const app = express()
-app.use(express.json())
+import express from "express";
+import authRouter from "./Routes/auth.routes.js";
+import cookie from 'cookie-parser'
+const app = express();
 
-export default app
+
+app.use(express.json());
+app.use(cookie())
+app.use("/api/auth", authRouter);
+
+export default app;
