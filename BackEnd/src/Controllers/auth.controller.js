@@ -2,6 +2,7 @@ import userModel from "../models/user.model.js";
 import jwt from "jsonwebtoken";
 import sendEmail from "../Services/mail.service.js";
 import bcrypt from 'bcrypt'
+
 export async function registerController(req, res) {
     try {
         const { username, email, password } = req.body;
@@ -29,14 +30,14 @@ export async function registerController(req, res) {
 
         await sendEmail({
             to: email,
-            subject: "Welcome to Perplexity!",
+            subject: "Welcome to Sift AI!",
             html: `
                 <p>Hi ${username},</p>
-                <p>Thank you for registering at <strong>Perplexity</strong>. We're excited to have you on board!</p>
+                <p>Thank you for registering at <strong>Sift Ai</strong>. We're excited to have you on board!</p>
                 <p>Please verify your email address by clicking the link below:</p>
                 <a href="${process.env.URL}/api/auth/verify-email?token=${emailVerificationToken}">Verify Email</a>
                 <p>If you did not create an account, please ignore this email.</p>
-                <p>Best regards,<br>The Perplexity Team</p>
+                <p>Best regards,<br>The Sift Ai Team</p>
         `
         })
 
@@ -88,9 +89,6 @@ export async function loginController(req, res) {
 
         const { email, password } = req.body;
 
-
-        // 1️⃣ Check required fields
-
         if (!email || !password) {
 
             return res.status(400).json({
@@ -99,13 +97,9 @@ export async function loginController(req, res) {
             });
 
         }
-
-
-        // 2️⃣ Find user
-
         const user = await userModel.findOne({
             email
-        });
+        }).select("+password");
 
 
         if (!user) {
@@ -117,16 +111,11 @@ export async function loginController(req, res) {
 
         }
 
-
-        // 3️⃣ Check password
-
         const isPasswordCorrect = await bcrypt.compare(
             password,
             user.password
         );
 
-        console.log(isPasswordCorrect);
-        
 
         if (!isPasswordCorrect) {
 
@@ -137,9 +126,6 @@ export async function loginController(req, res) {
 
         }
 
-
-        // 4️⃣ Check if email is verified
-
         if (!user.isVerified) {
 
             return res.status(403).json({
@@ -148,9 +134,6 @@ export async function loginController(req, res) {
             });
 
         }
-
-
-        // 5️⃣ Generate JWT
 
         const token = jwt.sign(
 
@@ -167,29 +150,13 @@ export async function loginController(req, res) {
 
         );
 
-
-        // 6️⃣ Store token in cookie
-
         res.cookie(
 
             "token",
 
-            token,
-
-            {
-                httpOnly: true,
-
-                secure: process.env.NODE_ENV === "production",
-
-                sameSite: "strict",
-
-                maxAge: 7 * 24 * 60 * 60 * 1000
-            }
+            token
 
         );
-
-
-        // 7️⃣ Send response
 
         return res.status(200).json({
 
@@ -225,4 +192,26 @@ export async function loginController(req, res) {
 
     }
 
+}
+
+export async function getMeController(req, res) {
+    try {
+        const userId = req.user
+        const user = await userModel.findById(userId)
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found"
+            })
+        }
+        res.status(200).json({
+            message: "User fetched successfully",
+            user
+        })
+    } catch (error) {
+        console.error("Login Error:", error);
+        return res.status(500).json({
+            message: "Internal Server Error",
+            success: false
+        });
+    }
 }
