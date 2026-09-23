@@ -4,7 +4,7 @@ import { useDispatch } from "react-redux"
 
 export default function useAuth() {
     const dispatch = useDispatch()
-    
+
     async function registerHandler({username,email,password}){
         try{
             dispatch(setloading(true))
@@ -42,9 +42,10 @@ export default function useAuth() {
             const data = await getme()
             dispatch(setUser(data))
         }
-        catch(err){
-            dispatch(setError(err.message))
-        }
+        // catch(err){
+        //     dispatch(setError(err.message))
+        //     throw err
+        // }
         finally{
             dispatch(setloading(false))
         }

@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import useAuth from '../Hooks/useAuth'
 import { Link, useNavigate } from 'react-router-dom'
+import { useSelector } from 'react-redux'
+import Loading from '../../../components/Loading'
 
 const Sparkle = () => (
   <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -12,25 +14,18 @@ const Login = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
-  const [error, setError] = useState('')
   const { loginHandler } = useAuth()
   const navigateTo = useNavigate()
+  const { error, loading } = useSelector((state) => state.auth)
 
   const handleSubmit = async (event) => {
     event.preventDefault()
-    setError('')
+    await loginHandler({ email, password })
+    navigateTo('/dashboard')
+  }
 
-    try {
-      const response = await loginHandler({ email, password })
-
-      if (!response?.success) {
-        throw new Error(response?.message || 'Invalid email or password.')
-      }
-
-      navigateTo('/dashboard')
-    } catch (err) {
-      setError(err.message || 'Invalid email or password. Please try again.')
-    }
+  if(loading){
+    return <Loading/>
   }
 
   return (
@@ -64,12 +59,12 @@ const Login = () => {
 
           <form onSubmit={handleSubmit}>
             <label htmlFor="login-email">Email address
-              <input id="login-email" type="email" name="email" value={email} onChange={(event) => { setEmail(event.target.value); setError('') }} placeholder="you@example.com" required />
+              <input id="login-email" type="email" name="email" value={email} onChange={(event) => { setEmail(event.target.value); }} placeholder="you@example.com" required />
             </label>
             <label htmlFor="login-password">Password
               <span className="label-action">Forgot password?</span>
               <span className="password-field">
-                <input id="login-password" type={showPassword ? 'text' : 'password'} name="password" value={password} onChange={(event) => { setPassword(event.target.value); setError('') }} placeholder="Enter your password" required />
+                <input id="login-password" type={showPassword ? 'text' : 'password'} name="password" value={password} onChange={(event) => { setPassword(event.target.value); }} placeholder="Enter your password" required />
                 <button type="button" aria-label="Show password" onClick={() => setShowPassword(!showPassword)}>{showPassword ? '◉' : '○'}</button>
               </span>
             </label>
@@ -77,7 +72,7 @@ const Login = () => {
             {error && <p className="form-notice" role="alert">{error}</p>}
           </form>
 
-        
+
           <p className="switch-page">New to Sift? <Link to="/register">Create an account <span>→</span></Link></p>
         </div>
       </section>

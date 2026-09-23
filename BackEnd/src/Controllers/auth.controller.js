@@ -74,7 +74,118 @@ export async function verifyUser(req, res) {
         }
         user.isVerified = true
         await user.save()
-        res.send('<h1>Hello World</h1>')
+        res.send(`
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Verified Successfully</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f4f7fb;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 450px;
+            background: white;
+            padding: 45px 35px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+        }
+
+        .icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 25px;
+            background: #22c55e;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 42px;
+            font-weight: bold;
+        }
+
+        h1 {
+            color: #111827;
+            font-size: 28px;
+            margin-bottom: 15px;
+        }
+
+        p {
+            color: #6b7280;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+
+        .success {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #111827;
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-size: 15px;
+        }
+
+        .success:hover {
+            background: #1f2937;
+        }
+
+        .footer {
+            margin-top: 25px;
+            color: #9ca3af;
+            font-size: 13px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <div class="icon">
+            ✓
+        </div>
+
+        <h1>Email Verified!</h1>
+
+        <p>
+            Your email address has been successfully verified.
+            Your account is now active and ready to use.
+        </p>
+
+        <a href="#" class="success">
+            Email Verified
+        </a>
+
+        <div class="footer">
+            You can now close this page and continue using the Sift AI.
+        </div>
+
+    </div>
+
+</body>
+</html>
+`)
     } catch (error) {
         console.error("Registration Error:", error);
         return res.status(500).json({

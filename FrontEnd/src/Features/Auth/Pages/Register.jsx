@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import useAuth from '../Hooks/useAuth'
 import { Link, useNavigate } from 'react-router-dom'
+import { useSelector } from 'react-redux'
+import Loading from '../../../components/Loading'
 
 const Sparkle = () => (
   <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -13,15 +15,18 @@ const Register = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
-  const [notice, setNotice] = useState('')
-  const {registerHandler} = useAuth()
+  const { error, loading } = useSelector((state) => state.auth)
+  const { registerHandler } = useAuth()
   const navigate = useNavigate()
 
   const handleSubmit = async (event) => {
     event.preventDefault()
-    await registerHandler({username,email,password})
-    setNotice(`Your Sift workspace is ready, ${username || 'friend'}.`)
+    await registerHandler({ username, email, password })
     navigate('/dashboard')
+  }
+
+  if (loading) {
+    return <Loading />
   }
 
   return (
@@ -55,7 +60,7 @@ const Register = () => {
             </label>
             <label className="check-label"><input type="checkbox" required /><span>I agree to the <a href="#terms">Terms</a> and <a href="#privacy">Privacy Policy</a>.</span></label>
             <button className="primary-button" type="submit">Create my account <span>→</span></button>
-            {notice && <p className="form-notice" role="status">{notice}</p>}
+            {error && <p className="form-notice" role="status">{error}</p>}
           </form>
 
           <p className="switch-page">Already have an account? <Link to="/login">Sign in <span>→</span></Link></p>
