@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import useAuth from '../Hooks/useAuth'
+import { Link, useNavigate } from 'react-router-dom'
 
 const Sparkle = () => (
   <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -7,25 +8,37 @@ const Sparkle = () => (
   </svg>
 )
 
-const Login = ({ navigate }) => {
+const Login = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
-  const [notice, setNotice] = useState('')
-  const {loginHandler} = useAuth()
+  const [error, setError] = useState('')
+  const { loginHandler } = useAuth()
+  const navigateTo = useNavigate()
 
   const handleSubmit = async (event) => {
     event.preventDefault()
-    await loginHandler({email,password})
-    setNotice(`Welcome back${email ? `, ${email}` : ''}. Your secure sign-in is ready.`)
+    setError('')
+
+    try {
+      const response = await loginHandler({ email, password })
+
+      if (!response?.success) {
+        throw new Error(response?.message || 'Invalid email or password.')
+      }
+
+      navigateTo('/dashboard')
+    } catch (err) {
+      setError(err.message || 'Invalid email or password. Please try again.')
+    }
   }
 
   return (
     <main className="auth-shell">
       <section className="auth-showcase">
-        <a className="brand" href="/login" onClick={(event) => { event.preventDefault(); navigate('/login') }}>
+        <Link className="brand" to="/login">
           <span><Sparkle /></span>Sift<span className="brand-dot">.</span>
-        </a>
+        </Link>
 
         <div className="showcase-copy">
           <p className="eyebrow">YOUR AI THINKING PARTNER</p>
@@ -51,22 +64,21 @@ const Login = ({ navigate }) => {
 
           <form onSubmit={handleSubmit}>
             <label htmlFor="login-email">Email address
-              <input id="login-email" type="email" name="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" required />
+              <input id="login-email" type="email" name="email" value={email} onChange={(event) => { setEmail(event.target.value); setError('') }} placeholder="you@example.com" required />
             </label>
             <label htmlFor="login-password">Password
               <span className="label-action">Forgot password?</span>
               <span className="password-field">
-                <input id="login-password" type={showPassword ? 'text' : 'password'} name="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Enter your password" required />
+                <input id="login-password" type={showPassword ? 'text' : 'password'} name="password" value={password} onChange={(event) => { setPassword(event.target.value); setError('') }} placeholder="Enter your password" required />
                 <button type="button" aria-label="Show password" onClick={() => setShowPassword(!showPassword)}>{showPassword ? '◉' : '○'}</button>
               </span>
             </label>
             <button className="primary-button" type="submit">Sign in <span>→</span></button>
-            {notice && <p className="form-notice" role="status">{notice}</p>}
+            {error && <p className="form-notice" role="alert">{error}</p>}
           </form>
 
-          <div className="divider"><span />or continue with<span /></div>
-          <button className="google-button" type="button"><b>G</b> Continue with Google</button>
-          <p className="switch-page">New to Sift? <a href="/register" onClick={(event) => { event.preventDefault(); navigate('/register') }}>Create an account <span>→</span></a></p>
+        
+          <p className="switch-page">New to Sift? <Link to="/register">Create an account <span>→</span></Link></p>
         </div>
       </section>
     </main>

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import useAuth from '../Hooks/useAuth'
+import { Link, useNavigate } from 'react-router-dom'
 
 const Sparkle = () => (
   <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -7,24 +8,26 @@ const Sparkle = () => (
   </svg>
 )
 
-const Register = ({ navigate }) => {
+const Register = () => {
   const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [notice, setNotice] = useState('')
   const {registerHandler} = useAuth()
+  const navigate = useNavigate()
 
   const handleSubmit = async (event) => {
     event.preventDefault()
     await registerHandler({username,email,password})
     setNotice(`Your Sift workspace is ready, ${username || 'friend'}.`)
+    navigate('/dashboard')
   }
 
   return (
     <main className="auth-shell register-shell">
       <section className="auth-showcase">
-        <a className="brand" href="/login" onClick={(event) => { event.preventDefault(); navigate('/login') }}><span><Sparkle /></span>Sift<span className="brand-dot">.</span></a>
+        <Link className="brand" to="/login"><span><Sparkle /></span>Sift<span className="brand-dot">.</span></Link>
         <div className="showcase-copy"><p className="eyebrow">A CALMER WAY TO THINK</p><h1>Turn your thoughts<br />into <em>clarity.</em></h1><p className="showcase-description">A quiet place to explore questions, connect ideas, and move from scattered to certain.</p></div>
         <div className="insight-card" aria-hidden="true"><span className="insight-icon"><Sparkle /></span><p>“Sift found three recurring themes across your notes.”</p><div><i /> Insight ready <b>↗</b></div></div>
         <p className="showcase-footer">Your ideas deserve room to breathe <span>✦</span></p>
@@ -55,7 +58,7 @@ const Register = ({ navigate }) => {
             {notice && <p className="form-notice" role="status">{notice}</p>}
           </form>
 
-          <p className="switch-page">Already have an account? <a href="/login" onClick={(event) => { event.preventDefault(); navigate('/login') }}>Sign in <span>→</span></a></p>
+          <p className="switch-page">Already have an account? <Link to="/login">Sign in <span>→</span></Link></p>
         </div>
       </section>
     </main>
